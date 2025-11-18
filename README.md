@@ -20,8 +20,31 @@
 
 **Seasons Around The World** is an immersive educational app that showcases how nature transforms throughout the year in different parts of the globe. Simply tap any country card to journey through its unique seasonal cycle—from the snowy winters of France to the tropical summers of Cambodia!
 
-> 📋 **Assignment Reference**: See [CHALLENGE WEATHER.pdf](./CHALLENGE%20WEATHER.pdf) for detailed requirements  
-> 📐 **Architecture Diagram**: View [diagram.png](./assets/diagram.png) for system design
+### 📋 Assignment Reference
+
+<div align="center">
+
+**Original Assignment Document**
+
+<a href="./CHALLENGE%20WEATHER.pdf">
+  <img src="./CHALLENGE%20WEATHER.pdf" alt="Challenge Weather Assignment" width="100%" />
+</a>
+
+📄 [View PDF: CHALLENGE WEATHER.pdf](./CHALLENGE%20WEATHER.pdf)
+
+</div>
+
+### 📐 Architecture Diagram
+
+<div align="center">
+
+**System Design & Component Structure**
+
+![Architecture Diagram](./assets/diagram.png)
+
+*Our enum-based architecture with clear separation of State, Parameters, and Computed values*
+
+</div>
 
 ### Why This App?
 
@@ -135,9 +158,6 @@ While the app is running:
 ---
 
 ## 🎨 Preview
-
-### Architecture Overview
-![Architecture Diagram](./assets/diagram.png)
 
 ### Season Cycle
 Both countries cycle through the same four seasons with different starting points:
