@@ -27,94 +27,51 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class Season {
-  const Season({
-    required this.name,
-    required this.imageAsset,
-    required this.backgroundColor,
-    required this.foregroundColor,
-    required this.description,
-    required this.months,
-  });
+// Enum representing the four seasons
+enum Season {
+  winter,
+  spring,
+  summer,
+  autumn;
 
-  final String name;
-  final String imageAsset;
-  final Color backgroundColor;
-  final Color foregroundColor;
-  final String description;
-  final String months;
+  // Get display name for the season
+  String get displayName {
+    switch (this) {
+      case Season.winter:
+        return 'Winter';
+      case Season.spring:
+        return 'Spring';
+      case Season.summer:
+        return 'Summer';
+      case Season.autumn:
+        return 'Autumn';
+    }
+  }
+
+  // Get image path for the season (computed)
+  String get imagePath {
+    switch (this) {
+      case Season.winter:
+        return 'assets/winter.png';
+      case Season.spring:
+        return 'assets/spring.png';
+      case Season.summer:
+        return 'assets/summer.png';
+      case Season.autumn:
+        return 'assets/fall.png';
+    }
+  }
+
+  // Get next season in the cycle
+  Season get next {
+    final values = Season.values;
+    final nextIndex = (index + 1) % values.length;
+    return values[nextIndex];
+  }
 }
 
-// Pre-configured season data for each country card.
-const List<Season> franceSeasons = [
-  Season(
-    name: 'Winter',
-    imageAsset: 'assets/winter.png',
-    backgroundColor: Color(0xFF12355B),
-    foregroundColor: Colors.white,
-    description: 'Snowy Alps, cozy cafés, and festive markets.',
-    months: 'December – February',
-  ),
-  Season(
-    name: 'Spring',
-    imageAsset: 'assets/spring.png',
-    backgroundColor: Color(0xFF51A37A),
-    foregroundColor: Colors.white,
-    description: 'Cherry blossoms along the Seine and mild breezes.',
-    months: 'March – May',
-  ),
-  Season(
-    name: 'Summer',
-    imageAsset: 'assets/summer.png',
-    backgroundColor: Color(0xFFFFB347),
-    foregroundColor: Colors.black,
-    description: 'Beach days on the Riviera and long sunny evenings.',
-    months: 'June – August',
-  ),
-  Season(
-    name: 'Autumn',
-    imageAsset: 'assets/fall.png',
-    backgroundColor: Color(0xFF8D5524),
-    foregroundColor: Colors.white,
-    description: 'Vineyard harvests and colorful parks across Paris.',
-    months: 'September – November',
-  ),
-];
-
-const List<Season> cambodiaSeasons = [
-  Season(
-    name: 'Cool & Dry',
-    imageAsset: 'assets/winter.png',
-    backgroundColor: Color(0xFF0F4C75),
-    foregroundColor: Colors.white,
-    description: 'Pleasant mornings in Phnom Penh with cool breezes.',
-    months: 'December – February',
-  ),
-  Season(
-    name: 'Hot',
-    imageAsset: 'assets/spring.png',
-    backgroundColor: Color(0xFFFFA41B),
-    foregroundColor: Colors.black,
-    description: 'Siem Reap basks in bright sunshine and soaring temps.',
-    months: 'March – May',
-  ),
-  Season(
-    name: 'Rainy',
-    imageAsset: 'assets/summer.png',
-    backgroundColor: Color(0xFF2F6690),
-    foregroundColor: Colors.white,
-    description: 'Monsoon showers refresh the rice fields and temples.',
-    months: 'June – September',
-  ),
-  Season(
-    name: 'Transition',
-    imageAsset: 'assets/fall.png',
-    backgroundColor: Color(0xFF774936),
-    foregroundColor: Colors.white,
-    description: 'Rivers recede and festivals prepare for the cool season.',
-    months: 'October – November',
-  ),
-];
+// Constants
+const String seasonsTitle = 'SEASONS';
 
 class SeasonHomePage extends StatelessWidget {
   const SeasonHomePage({super.key});
@@ -142,7 +99,7 @@ class SeasonHomePage extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                'SEASONS',
+                seasonsTitle, // Constants
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.w700,
                   letterSpacing: 1.2,
@@ -155,17 +112,17 @@ class SeasonHomePage extends StatelessWidget {
                   children: const [
                     Expanded(
                       child: SeasonCard(
-                        country: 'France',
-                        seasons: franceSeasons,
-                        initialIndex: 0,
+                        season: Season.winter, // enum
+                        imagePath: 'assets/winter.png', // String
+                        city: 'FRANCE', // String: city (Parameter)
                       ),
                     ),
                     SizedBox(width: 18),
                     Expanded(
                       child: SeasonCard(
-                        country: 'Cambodia',
-                        seasons: cambodiaSeasons,
-                        initialIndex: 2,
+                        season: Season.summer, // enum
+                        imagePath: 'assets/summer.png', // String
+                        city: 'CAMBODIA', // String: city (Parameter)
                       ),
                     ),
                   ],
@@ -182,41 +139,41 @@ class SeasonHomePage extends StatelessWidget {
 class SeasonCard extends StatefulWidget {
   const SeasonCard({
     super.key,
-    required this.country,
-    required this.seasons,
-    this.initialIndex = 0,
+    required this.season, // enum: Season
+    required this.imagePath, // String: imagePath
+    required this.city, // String: city
   });
 
-  final String country;
-  final List<Season> seasons;
-  final int initialIndex;
+  final Season season; // Argument: enum
+  final String imagePath; // Argument: String
+  final String city; // Argument: String
 
   @override
   State<SeasonCard> createState() => _SeasonCardState();
 }
 
 class _SeasonCardState extends State<SeasonCard> {
-  late int _currentIndex;
+  late int currentSeason; // State: int
 
   @override
   void initState() {
     super.initState();
-    final seasonCount = widget.seasons.length;
-    _currentIndex = seasonCount == 0 ? 0 : widget.initialIndex % seasonCount;
+    // Initialize current season based on passed enum
+    currentSeason = widget.season.index;
   }
 
   void _goToNextSeason() {
-    if (widget.seasons.isEmpty) {
-      return;
-    }
     setState(() {
-      _currentIndex = (_currentIndex + 1) % widget.seasons.length;
+      // Cycle through 4 seasons (0, 1, 2, 3)
+      currentSeason = (currentSeason + 1) % Season.values.length;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final season = widget.seasons[_currentIndex];
+    // Computed: Get current season from the enum values
+    final Season displayedSeason = Season.values[currentSeason];
+    final String seasonImage = displayedSeason.imagePath; // Computed
     final textTheme = Theme.of(context).textTheme;
 
     return GestureDetector(
@@ -237,9 +194,9 @@ class _SeasonCardState extends State<SeasonCard> {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(12),
                 child: Container(
-                  color: season.backgroundColor.withOpacity(0.18),
+                  color: Colors.grey.shade200,
                   child: Image.asset(
-                    season.imageAsset,
+                    seasonImage, // Computed from enum
                     fit: BoxFit.cover,
                     width: double.infinity,
                     height: double.infinity,
@@ -249,7 +206,7 @@ class _SeasonCardState extends State<SeasonCard> {
             ),
             const SizedBox(height: 12),
             Text(
-              widget.country.toUpperCase(),
+              widget.city, // Parameter
               textAlign: TextAlign.center,
               style: textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
