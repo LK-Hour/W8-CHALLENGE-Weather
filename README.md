@@ -18,15 +18,19 @@
 
 ## 🎯 Overview
 
-**Seasons Around The World** is an immersive educational app that showcases how nature transforms throughout the year in different parts of the globe. Simply tap any country card to journey through its unique seasonal cycle—from the snowy winters of France to the monsoon rains of Cambodia!
+**Seasons Around The World** is an immersive educational app that showcases how nature transforms throughout the year in different parts of the globe. Simply tap any country card to journey through its unique seasonal cycle—from the snowy winters of France to the tropical summers of Cambodia!
+
+> 📋 **Assignment Reference**: See [CHALLENGE WEATHER.pdf](./CHALLENGE%20WEATHER.pdf) for detailed requirements  
+> 📐 **Architecture Diagram**: View [diagram.png](./assets/diagram.png) for system design
 
 ### Why This App?
 
 - 🎓 **Educational**: Learn about climate patterns across continents
-- 🎨 **Beautiful Design**: Carefully crafted color palettes for each season
+- 🎨 **Beautiful Design**: Carefully crafted visuals for each season
 - 🖱️ **Interactive**: Tap-to-cycle mechanism makes exploration fun
 - 📱 **Responsive**: Works seamlessly across all devices
 - ⚡ **Fast & Smooth**: Built with Flutter for native performance
+- 🏗️ **Clean Architecture**: Enum-based design for type safety
 
 ---
 
@@ -38,8 +42,8 @@
 
 ### 🌍 Multi-Country Support
 Explore seasons in:
-- **🇫🇷 France**: Classic European seasons
-- **🇰🇭 Cambodia**: Tropical climate zones
+- **🇫🇷 France**: Starts with Winter
+- **🇰🇭 Cambodia**: Starts with Summer
 
 </td>
 <td width="50%">
@@ -47,9 +51,9 @@ Explore seasons in:
 ### 🎨 Rich Visuals
 Each season features:
 - Custom illustrations
-- Unique color schemes
-- Descriptive narratives
-- Month indicators
+- Smooth transitions
+- Clean, modern design
+- Responsive imagery
 
 </td>
 </tr>
@@ -132,15 +136,17 @@ While the app is running:
 
 ## 🎨 Preview
 
-### France Seasons
+### Architecture Overview
+![Architecture Diagram](./assets/diagram.png)
+
+### Season Cycle
+Both countries cycle through the same four seasons with different starting points:
 ```
-Winter ❄️ → Spring 🌸 → Summer ☀️ → Autumn 🍂
+Winter ❄️ → Spring 🌸 → Summer ☀️ → Autumn 🍂 → (repeat)
 ```
 
-### Cambodia Seasons
-```
-Cool & Dry 🌤️ → Hot 🔥 → Rainy 🌧️ → Transition 🌾
-```
+- **France**: Starts with **Winter** ❄️
+- **Cambodia**: Starts with **Summer** ☀️
 
 ---
 
@@ -170,30 +176,48 @@ w8_weather/
 ### Widget Hierarchy
 
 ```dart
-MaterialApp
+MaterialApp (DevicePreview enabled)
 └── SeasonHomePage (Stateless)
     └── SeasonCard (Stateful) x2
-        ├── Season Model
-        └── State Management
+        ├── enum Season (winter, spring, summer, autumn)
+        └── State Management (int currentSeason)
+```
+
+### Architecture Highlights
+
+This app uses a **simplified enum-based architecture** for type safety and maintainability:
+
+```dart
+// Enum with computed properties
+enum Season {
+  winter, spring, summer, autumn;
+  
+  String get displayName { ... }   // "Winter", "Spring", etc.
+  String get imagePath { ... }     // "assets/winter.png", etc.
+  Season get next { ... }          // Cycles to next season
+}
 ```
 
 ### State Management Strategy
 
-| Component | Type | Purpose |
-|-----------|------|---------|
-| `_currentIndex` | **State** | Tracks active season index |
-| `country` | **Parameter** | Country name display |
-| `seasons` | **Parameter** | List of season data |
-| `initialIndex` | **Parameter** | Starting season |
-| `effectiveSeason` | **Computed** | Current season based on index |
+| Component | Type | Purpose | Example |
+|-----------|------|---------|---------|
+| `currentSeason` | **State (int)** | Tracks active season index (0-3) | `0` = Winter |
+| `season` | **Parameter (enum)** | Initial season for the card | `Season.winter` |
+| `imagePath` | **Parameter (String)** | Path to season image | `'assets/winter.png'` |
+| `city` | **Parameter (String)** | City/country name | `'FRANCE'` |
+| `displayedSeason` | **Computed (enum)** | Current season from index | `Season.values[currentSeason]` |
+| `seasonImage` | **Computed (String)** | Current image path | `displayedSeason.imagePath` |
 
 ### Key Features Implementation
 
-- ✅ **Tap Cycling**: `GestureDetector` + `setState()`
-- ✅ **Smooth Animations**: `AnimatedContainer` with curves
-- ✅ **Responsive Layout**: `Expanded` & `Flex` widgets
-- ✅ **Asset Loading**: Image.asset with cover fit
+- ✅ **Enum-Based Design**: Type-safe season representation with computed properties
+- ✅ **Tap Cycling**: `GestureDetector` + `setState()` updates `currentSeason`
+- ✅ **Smooth Animations**: `AnimatedContainer` with `Curves.easeInOut`
+- ✅ **Responsive Layout**: `Expanded` & `Flex` widgets for adaptability
+- ✅ **Asset Loading**: `Image.asset` with `BoxFit.cover` for perfect fit
 - ✅ **Theme Integration**: Material 3 color schemes
+- ✅ **Device Preview**: Multi-device testing support
 
 ---
 
@@ -201,55 +225,59 @@ MaterialApp
 
 ### 🌏 Adding a New Country
 
-```dart
-// 1. Define season data
-const List<Season> japanSeasons = [
-  Season(
-    name: 'Spring (Haru)',
-    imageAsset: 'assets/japan_spring.png',
-    backgroundColor: Color(0xFFFFB7C5),
-    foregroundColor: Colors.white,
-    description: 'Cherry blossoms paint the country pink.',
-    months: 'March – May',
-  ),
-  // Add more seasons...
-];
+With the enum-based design, adding a new country is simple:
 
-// 2. Add to UI
-SeasonCard(
-  country: '🇯🇵 Japan',
-  seasons: japanSeasons,
-  initialIndex: 0,
+```dart
+// In SeasonHomePage, add another SeasonCard
+Expanded(
+  child: SeasonCard(
+    season: Season.spring,           // Choose starting season
+    imagePath: 'assets/spring.png',  // Initial image
+    city: 'JAPAN',                   // City/country name
+  ),
 ),
 ```
 
-### 🎨 Customizing Colors
+### 🎨 Adding Custom Seasons
 
-```dart
-// Modify backgroundColor for card appearance
-backgroundColor: Color(0xFF123456),  // Dark blue
-backgroundColor: Color(0xFFFFB347),  // Warm orange
-backgroundColor: Color(0xFF51A37A),  // Fresh green
-```
+To add custom seasonal images:
 
-### 🖼️ Using Custom Images
-
-1. Add your images to `assets/` folder
-2. Update `pubspec.yaml` if needed
-3. Reference in Season model:
+1. **Add images** to `assets/` folder (e.g., `japan_spring.png`)
+2. **Update** `pubspec.yaml` if needed
+3. **Pass the path** to `SeasonCard`:
    ```dart
-   imageAsset: 'assets/your_image.png'
+   SeasonCard(
+     season: Season.spring,
+     imagePath: 'assets/japan_spring.png',  // Custom image
+     city: 'TOKYO',
+   )
    ```
+
+Note: The card will still cycle through the four standard seasons using the enum's `imagePath` getter after the first tap.
 
 ### ⚙️ Adjusting Animation Speed
 
 ```dart
-// In SeasonCard build method
+// In SeasonCard build method (line ~155)
 AnimatedContainer(
-  duration: const Duration(milliseconds: 300),  // Faster
+  duration: const Duration(milliseconds: 200),  // Current
+  // Change to:
+  duration: const Duration(milliseconds: 300),  // Slightly slower
   // or
-  duration: const Duration(milliseconds: 500),  // Slower
+  duration: const Duration(milliseconds: 100),  // Faster
+  curve: Curves.easeInOut,
 )
+```
+
+### 🔄 Modifying Season Order
+
+To change which seasons are included or their order, modify the `Season` enum:
+
+```dart
+enum Season {
+  spring, summer, autumn, winter;  // Different order
+  // Update imagePath getter accordingly
+}
 ```
 
 ---
@@ -271,24 +299,34 @@ dev_dependencies:
 
 ## 🎯 Assignment Requirements
 
-This project fulfills all homework criteria:
+This project fulfills all homework criteria as defined in [CHALLENGE WEATHER.pdf](./CHALLENGE%20WEATHER.pdf):
 
 ### ✅ Step 1: Widget Identification
-- `SeasonCard` (Stateful) - Manages season cycling
-- `SeasonHomePage` (Stateless) - Layout structure
-- `Season` (Model) - Data encapsulation
+- **`SeasonCard`** (Stateful) - Manages season cycling with tap interaction
+- **`SeasonHomePage`** (Stateless) - Main layout structure
+- **`Season`** (Enum) - Type-safe season representation with computed properties
 
 ### ✅ Step 2: Data Classification
-- **State**: `_currentIndex` (mutable, triggers rebuilds)
-- **Parameters**: `country`, `seasons`, `initialIndex`
-- **Computed**: Current season selection
-- **Constants**: Season data arrays
+
+Follows the architecture shown in [diagram.png](./assets/diagram.png):
+
+| Data Type | Variable | Description |
+|-----------|----------|-------------|
+| **State** | `currentSeason: int` | Mutable index (0-3) that triggers rebuilds when changed |
+| **Parameter** | `season: Season` | Enum - initial season passed to widget |
+| **Parameter** | `imagePath: String` | Initial image path for the season |
+| **Parameter** | `city: String` | City/country name for display |
+| **Computed** | `displayedSeason: Season` | Derived from `Season.values[currentSeason]` |
+| **Computed** | `seasonImage: String` | Derived from `displayedSeason.imagePath` |
+| **Constant** | `seasonsTitle: String` | Static "SEASONS" label |
 
 ### ✅ Step 3: Implementation
-- Fully functional tap-to-cycle mechanism
-- Smooth visual transitions
-- Clean, maintainable code structure
-- Responsive design patterns
+- ✅ Fully functional tap-to-cycle mechanism using `GestureDetector` + `setState()`
+- ✅ Smooth visual transitions with `AnimatedContainer`
+- ✅ Clean, maintainable enum-based architecture
+- ✅ Responsive design with `Expanded` widgets
+- ✅ Type-safe season management
+- ✅ Device preview support for testing
 
 ---
 
@@ -296,12 +334,15 @@ This project fulfills all homework criteria:
 
 By exploring this project, you'll understand:
 
-- 📚 **State Management**: How to use `setState()` effectively
-- 🎨 **Custom Widgets**: Creating reusable, parameterized components
-- 🔄 **Animations**: Implementing smooth transitions
-- 📐 **Responsive Design**: Building adaptive layouts
-- 🖼️ **Asset Management**: Working with images in Flutter
-- 🎭 **Material Design**: Applying Material 3 principles
+- 📚 **State Management**: How to use `setState()` with integer indices
+- 🎨 **Custom Widgets**: Creating reusable, parameterized `StatefulWidget` components
+- 🔄 **Animations**: Implementing smooth transitions with `AnimatedContainer`
+- 📐 **Responsive Design**: Building adaptive layouts with `Expanded` and `Flex`
+- 🖼️ **Asset Management**: Loading and displaying images efficiently
+- 🎭 **Material Design**: Applying Material 3 principles with theme integration
+- 🏗️ **Enum Design Patterns**: Using enums with computed properties for type safety
+- 🧮 **Computed Values**: Deriving display data from state variables
+- 🔁 **Cyclic State**: Implementing circular navigation through modulo arithmetic
 
 ---
 
